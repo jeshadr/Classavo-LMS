@@ -5,6 +5,7 @@ Django settings for lms_backend project.
 from pathlib import Path
 from datetime import timedelta
 from decouple import config, Csv
+from corsheaders.defaults import default_headers, default_methods
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -178,4 +179,25 @@ CORS_ALLOWED_ORIGINS = config(
 )
 
 CORS_ALLOW_CREDENTIALS = True
+
+# Allow Vercel preview domains without having to list each one
+CORS_ALLOWED_ORIGIN_REGEXES = config(
+    'CORS_ALLOWED_ORIGIN_REGEXES',
+    default=r'^https://.*\.vercel\.app$',
+    cast=Csv(),
+)
+
+# Be explicit about allowed methods/headers for preflight clarity
+CORS_ALLOW_METHODS = list(default_methods)
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'authorization',
+    'content-type',
+]
+
+# If you serve any cookie-based views (e.g., admin), trust your frontend origin
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='https://*.vercel.app',
+    cast=Csv(),
+)
 
