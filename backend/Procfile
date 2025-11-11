@@ -1,0 +1,2 @@
+web: gunicorn lms_backend.wsgi --log-file -
+
