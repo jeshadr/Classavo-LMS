@@ -1,6 +1,8 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+// Normalize base URL: strip trailing slash if present; fall back to localhost in dev.
+const RAW_API_URL = process.env.NEXT_PUBLIC_API_URL
+const API_URL = (RAW_API_URL && RAW_API_URL.replace(/\/$/, '')) || 'http://localhost:8000'
 
 class ApiClient {
   private client: AxiosInstance
@@ -19,6 +21,11 @@ class ApiClient {
         const token = localStorage.getItem('access_token')
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`
+        }
+        // Helpful warning if the app was built without the env var on a hosted domain.
+        if (process.env.NODE_ENV === 'production' && RAW_API_URL == null) {
+          // eslint-disable-next-line no-console
+          console.warn('NEXT_PUBLIC_API_URL is not set at build time; falling back to http://localhost:8000')
         }
         return config
       },
